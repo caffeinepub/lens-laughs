@@ -561,7 +561,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 h-32 md:h-36 flex items-center justify-between">
           <a href="#home" className="flex items-center" data-ocid="nav.link">
             <img
-              src="/assets/uploads/untitled_design-019d3d79-a81b-74cc-8a07-451c2d08a989-1.png"
+              src="/assets/uploads/untitled_design-019d3dd4-2493-72de-9c26-e2b9270ca794-1.png"
               alt="Lens & Laughs"
               className="h-[110px] md:h-[130px] w-auto object-contain"
             />
@@ -639,22 +639,22 @@ export default function Home() {
 
       {/* HERO */}
       <section id="home" className="relative mt-32 md:mt-36">
-        {/* Full image — no cropping */}
+        {/* Full image — no cropping, full portrait shown */}
         <img
-          src="/assets/uploads/2x7a1263-019d3b42-df95-71bb-9b19-ade824019dbf-1.jpeg"
+          src="/assets/uploads/2x7a1263-019d3ddd-89be-763b-af9a-c13fb23205b0-1.jpg"
           alt="Hero"
           className="block w-full h-auto"
         />
 
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent" />
+        {/* Gradient overlay — bottom-to-top so text at bottom is readable */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-        {/* Text content */}
+        {/* Text content — pinned to bottom */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: "easeOut" }}
-          className="absolute inset-0 flex items-center z-10"
+          className="absolute inset-0 flex items-end pb-12 z-10"
         >
           <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
             <div className="max-w-2xl">
