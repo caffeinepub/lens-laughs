@@ -151,6 +151,22 @@ const DEFAULT_SERVICES = [
     ],
     highlighted: false,
   },
+  {
+    id: 5,
+    name: "INFLUENCER PLAN",
+    subtitle: "Content Creator Plan",
+    price: "₹12,999 – ₹16,999 / month",
+    description:
+      "A monthly content package built for influencers and creators — consistent shoots, edited photos, and reels to keep your feed active.",
+    features: [
+      "2 shoots per month",
+      "30–50 edited photos",
+      "6–10 reels (short-form videos)",
+      "Basic content direction (poses, trends, ideas)",
+      "Priority delivery",
+    ],
+    highlighted: false,
+  },
 ];
 
 const DEFAULT_CONTENT: Record<string, string> = {
@@ -454,17 +470,21 @@ export default function Home() {
           const sorted = [...servicePackages].sort(
             (a, b) => Number(a.displayOrder) - Number(b.displayOrder),
           );
-          setServices(
-            sorted.map((pkg) => ({
-              id: Number(pkg.id),
-              name: pkg.name,
-              subtitle: pkg.subtitle,
-              price: pkg.price,
-              description: pkg.description,
-              features: pkg.features,
-              highlighted: pkg.highlighted,
-            })),
+          const mapped = sorted.map((pkg) => ({
+            id: Number(pkg.id),
+            name: pkg.name,
+            subtitle: pkg.subtitle,
+            price: pkg.price,
+            description: pkg.description,
+            features: pkg.features,
+            highlighted: pkg.highlighted,
+          }));
+          // Always include Influencer Plan even if backend doesn't have it yet
+          const hasInfluencer = mapped.some(
+            (s) => s.name === "INFLUENCER PLAN",
           );
+          const influencerDefault = DEFAULT_SERVICES.find((s) => s.id === 5)!;
+          setServices(hasInfluencer ? mapped : [...mapped, influencerDefault]);
         }
 
         // Portfolio items with resolved URLs
@@ -836,7 +856,7 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6">
             {services.map((svc, i) => (
               <motion.div
                 key={svc.id}
@@ -862,7 +882,7 @@ export default function Home() {
                 <h3 className="font-serif text-xl font-bold mb-2">
                   {svc.name}
                 </h3>
-                <p className="font-serif text-3xl font-bold text-gold mb-4">
+                <p className="font-serif text-2xl font-bold text-gold mb-4">
                   {svc.price}
                 </p>
                 <p className="text-muted-foreground text-sm leading-relaxed mb-6">
