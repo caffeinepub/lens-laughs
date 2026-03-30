@@ -39,43 +39,48 @@ const NAV_LINKS = [
 const DEFAULT_PORTFOLIO_ITEMS = [
   {
     id: 1,
-    src: "/assets/generated/portfolio-fashion-editorial.dim_600x800.jpg",
+    src: "/assets/dsc_5580-019d3e37-cfae-70d9-bc3f-d15dd3ea56ce.jpg",
     caption: "Editorial Edge",
   },
   {
     id: 2,
-    src: "/assets/generated/portfolio-lookbook.dim_600x800.jpg",
-    caption: "Street Story",
-  },
-  {
-    id: 3,
-    src: "/assets/generated/portfolio-portrait-fashion.dim_600x800.jpg",
+    src: "/assets/dsc_5618-019d3e37-d097-707c-a42e-4215bed205c6.jpg",
     caption: "Quiet Radiance",
   },
   {
+    id: 3,
+    src: "/assets/dsc_5692-019d3e37-d70b-731b-918a-f26da67d0bcc.jpg",
+    caption: "The Frame",
+  },
+  {
     id: 4,
-    src: "/assets/generated/portfolio-brand-campaign.dim_600x800.jpg",
-    caption: "Brand Vision",
+    src: "/assets/dsc_5638-019d3e37-d97e-70b8-8194-af193911ea59.jpg",
+    caption: "In Focus",
   },
   {
     id: 5,
-    src: "/assets/generated/portfolio-wedding-candid.dim_600x800.jpg",
-    caption: "Forever Frames",
+    src: "/assets/dsc_5680-019d3e37-db5d-75db-ba88-edfb6619c9e6.jpg",
+    caption: "Poolside",
   },
   {
     id: 6,
-    src: "/assets/generated/portfolio-fashion-editorial.dim_600x800.jpg",
-    caption: "Silk & Shadow",
+    src: "/assets/dsc_5656-019d3e37-ddf1-76da-91ff-0127d0e67262.jpg",
+    caption: "Bold & Free",
   },
   {
     id: 7,
-    src: "/assets/generated/portfolio-lookbook.dim_600x800.jpg",
-    caption: "Raw Light",
+    src: "/assets/dsc_5722-019d3e37-e1ba-75b1-bed3-5d63be20c44b.jpg",
+    caption: "Street Story",
   },
   {
     id: 8,
-    src: "/assets/generated/portfolio-portrait-fashion.dim_600x800.jpg",
-    caption: "Identity",
+    src: "/assets/dsc_5715-019d3e37-e212-77ff-95af-13281757d1d9.jpg",
+    caption: "Raw Light",
+  },
+  {
+    id: 9,
+    src: "/assets/dsc_5718-019d3e37-e38b-7021-b14d-fe10bee6b387.jpg",
+    caption: "Together",
   },
 ];
 
@@ -763,7 +768,7 @@ export default function Home() {
               <div className="relative max-w-sm mx-auto">
                 <div className="absolute -top-4 -left-4 w-full h-full border-2 border-gold/30" />
                 <img
-                  src="/assets/uploads/c9ece151-c36b-4672-bf10-64e4684c9319-019d3d97-59ce-753b-bc23-81e01f68f37b-1.jpg"
+                  src="/assets/uploads/photographer-photo.jpg"
                   alt="Yashraj Gill"
                   className="w-full object-cover shadow-warm relative z-10"
                 />
