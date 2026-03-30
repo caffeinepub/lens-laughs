@@ -662,8 +662,15 @@ export default function Home() {
         </AnimatePresence>
       </header>
 
+      {/* Photography byline — below header, above hero */}
+      <div className="mt-32 md:mt-36 bg-background text-center py-3 border-b border-border/30">
+        <p className="text-foreground text-xs md:text-sm tracking-[0.35em] uppercase font-sans font-medium">
+          {c("hero.subtitle")}
+        </p>
+      </div>
+
       {/* HERO */}
-      <section id="home" className="relative mt-32 md:mt-36">
+      <section id="home" className="relative">
         {/* Full image — no cropping, full portrait shown */}
         <img
           src="/assets/uploads/2x7a1263-019d3ddd-89be-763b-af9a-c13fb23205b0-1.jpg"
@@ -683,9 +690,6 @@ export default function Home() {
         >
           <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
             <div className="max-w-2xl">
-              <p className="text-white text-base md:text-lg tracking-[0.3em] uppercase font-sans mb-4 font-medium">
-                {c("hero.subtitle")}
-              </p>
               <h1 className="font-serif text-5xl md:text-7xl font-bold text-white leading-tight mb-6">
                 Lens &amp; Laughs
               </h1>
@@ -879,20 +883,20 @@ export default function Home() {
                 <p className="text-gold text-xs tracking-[0.35em] uppercase mb-1">
                   {svc.subtitle}
                 </p>
-                <h3 className="font-serif text-xl font-bold mb-2">
+                <h3 className="font-serif text-base font-bold mb-2">
                   {svc.name}
                 </h3>
-                <p className="font-serif text-2xl font-bold text-gold mb-4">
+                <p className="font-serif text-lg font-bold text-gold mb-4">
                   {svc.price}
                 </p>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-6">
+                <p className="text-muted-foreground text-xs leading-relaxed mb-6">
                   {svc.description}
                 </p>
                 <ul className="space-y-2 mb-8 flex-1">
                   {svc.features.map((feat) => (
                     <li
                       key={feat}
-                      className="flex items-center gap-2 text-sm text-foreground"
+                      className="flex items-center gap-2 text-xs text-foreground"
                     >
                       <span className="w-1 h-1 rounded-full bg-gold flex-shrink-0" />
                       {feat}
