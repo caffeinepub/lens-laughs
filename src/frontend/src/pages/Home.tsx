@@ -663,7 +663,7 @@ export default function Home() {
         >
           <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
             <div className="max-w-2xl">
-              <p className="text-gold text-sm tracking-[0.3em] uppercase font-sans mb-4">
+              <p className="text-white text-base md:text-lg tracking-[0.3em] uppercase font-sans mb-4 font-medium">
                 {c("hero.subtitle")}
               </p>
               <h1 className="font-serif text-5xl md:text-7xl font-bold text-white leading-tight mb-6">
