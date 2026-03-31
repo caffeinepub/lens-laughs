@@ -66,6 +66,7 @@ export interface _SERVICE {
   'getServicePackages' : ActorMethod<[], Array<ServicePackage>>,
   'initializeServices' : ActorMethod<[string], undefined>,
   'updateServicePackage' : ActorMethod<[string, bigint, string, string, string, string, Array<string>, boolean], undefined>,
+  'reorderServicePackages' : ActorMethod<[string, Array<bigint>], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

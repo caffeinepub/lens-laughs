@@ -65,6 +65,7 @@ export const idlService = IDL.Service({
   'getServicePackages' : IDL.Func([], [IDL.Vec(ServicePackage)], ['query']),
   'initializeServices' : IDL.Func([IDL.Text], [], []),
   'updateServicePackage' : IDL.Func([IDL.Text, IDL.Nat, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Vec(IDL.Text), IDL.Bool], [], []),
+  'reorderServicePackages' : IDL.Func([IDL.Text, IDL.Vec(IDL.Nat)], [], []),
 });
 
 export const idlInitArgs = [];
@@ -131,6 +132,7 @@ export const idlFactory = ({ IDL }) => {
     'getServicePackages' : IDL.Func([], [IDL.Vec(ServicePackage)], ['query']),
     'initializeServices' : IDL.Func([IDL.Text], [], []),
     'updateServicePackage' : IDL.Func([IDL.Text, IDL.Nat, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Vec(IDL.Text), IDL.Bool], [], []),
+    'reorderServicePackages' : IDL.Func([IDL.Text, IDL.Vec(IDL.Nat)], [], []),
   });
 };
 

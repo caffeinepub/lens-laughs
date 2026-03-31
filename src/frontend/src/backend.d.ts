@@ -67,4 +67,5 @@ export interface backendInterface {
     getServicePackages(): Promise<Array<ServicePackage>>;
     initializeServices(password: string): Promise<void>;
     updateServicePackage(password: string, id: bigint, name: string, subtitle: string, price: string, description: string, features: Array<string>, highlighted: boolean): Promise<void>;
+    reorderServicePackages(password: string, orderedIds: Array<bigint>): Promise<void>;
 }

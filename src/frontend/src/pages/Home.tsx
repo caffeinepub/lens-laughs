@@ -86,6 +86,23 @@ const DEFAULT_PORTFOLIO_ITEMS = [
 
 const DEFAULT_SERVICES = [
   {
+    id: 6,
+    name: "CREATOR MINI PACK",
+    subtitle: "Quick & Fresh",
+    price: "₹3,999",
+    description:
+      "A compact content shoot for creators — one nearby location, fast delivery, and reels included.",
+    features: [
+      "30–45 minute shoot",
+      "1 nearby location (café / street / home vibe)",
+      "8–10 professionally edited photos",
+      "2 short-form reels (trendy + simple edits)",
+      "Basic posing guidance",
+      "Delivery within 48–72 hours",
+    ],
+    highlighted: false,
+  },
+  {
     id: 1,
     name: "THE SPARK",
     subtitle: "Quick Shoot",
@@ -479,12 +496,21 @@ export default function Home() {
             features: pkg.features,
             highlighted: pkg.highlighted,
           }));
+          // Always include Creator Mini Pack even if backend doesn't have it yet
+          const hasCreatorMini = mapped.some(
+            (s) => s.name === "CREATOR MINI PACK",
+          );
+          const creatorMiniDefault = DEFAULT_SERVICES.find((s) => s.id === 6)!;
           // Always include Influencer Plan even if backend doesn't have it yet
           const hasInfluencer = mapped.some(
             (s) => s.name === "INFLUENCER PLAN",
           );
           const influencerDefault = DEFAULT_SERVICES.find((s) => s.id === 5)!;
-          setServices(hasInfluencer ? mapped : [...mapped, influencerDefault]);
+          setServices([
+            ...(hasCreatorMini ? [] : [creatorMiniDefault]),
+            ...mapped,
+            ...(hasInfluencer ? [] : [influencerDefault]),
+          ]);
         }
 
         // Portfolio items with resolved URLs

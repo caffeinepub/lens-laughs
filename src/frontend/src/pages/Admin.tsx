@@ -15,6 +15,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { HttpAgent } from "@icp-sdk/core/agent";
 import {
+  ArrowDown,
+  ArrowUp,
   Calendar,
   Clock,
   Edit2,
@@ -583,6 +585,31 @@ function ServicesTab() {
     }
   };
 
+  const [reordering, setReordering] = useState(false);
+
+  const handleMove = async (index: number, direction: -1 | 1) => {
+    if (!actor) return;
+    const newPackages = [...packages];
+    const swapIndex = index + direction;
+    if (swapIndex < 0 || swapIndex >= newPackages.length) return;
+    [newPackages[index], newPackages[swapIndex]] = [
+      newPackages[swapIndex],
+      newPackages[index],
+    ];
+    setPackages(newPackages);
+    setReordering(true);
+    try {
+      const orderedIds = newPackages.map((p) => p.id);
+      await actor.reorderServicePackages(ADMIN_PASSWORD, orderedIds);
+      toast.success("Order saved!");
+    } catch {
+      toast.error("Failed to save order.");
+      setPackages(packages);
+    } finally {
+      setReordering(false);
+    }
+  };
+
   if (loading) {
     return (
       <div
@@ -607,11 +634,36 @@ function ServicesTab() {
             className="bg-card border border-border rounded p-6 space-y-4"
             data-ocid={`services.card.${i + 1}`}
           >
-            <div className="flex items-center justify-between">
-              <h3 className="font-serif text-lg font-bold">{pkg.name}</h3>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => handleMove(i, -1)}
+                  disabled={i === 0 || reordering}
+                  className="p-1 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
+                  title="Move up"
+                >
+                  <ArrowUp size={14} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleMove(i, 1)}
+                  disabled={i === packages.length - 1 || reordering}
+                  className="p-1 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
+                  title="Move down"
+                >
+                  <ArrowDown size={14} />
+                </button>
+                <span className="text-xs text-muted-foreground font-mono ml-1">
+                  #{i + 1}
+                </span>
+              </div>
+              <h3 className="font-serif text-lg font-bold flex-1 text-center">
+                {pkg.name}
+              </h3>
               <Badge
                 variant={form.highlighted ? "default" : "secondary"}
-                className="text-xs"
+                className="text-xs shrink-0"
               >
                 {form.highlighted ? "Most Popular" : "Standard"}
               </Badge>

@@ -300,4 +300,22 @@ actor {
       };
     };
   };
+
+  public shared ({ caller }) func reorderServicePackages(
+    password : Text,
+    orderedIds : [Nat]
+  ) : async () {
+    checkAdminAccess(password);
+    ensureServicesInit();
+    var newOrder : Nat = 0;
+    for (id in orderedIds.vals()) {
+      switch (servicePackages.get(id)) {
+        case (null) { /* skip unknown ids */ };
+        case (?pkg) {
+          servicePackages.add(id, { pkg with displayOrder = newOrder });
+          newOrder += 1;
+        };
+      };
+    };
+  };
 };
