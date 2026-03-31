@@ -6,8 +6,11 @@ import Int "mo:core/Int";
 import Nat "mo:core/Nat";
 import Map "mo:core/Map";
 import Runtime "mo:core/Runtime";
+import BlobStorageMixin "blob-storage/Mixin";
 
 actor {
+  include BlobStorageMixin();
+
   type ContactSubmission = {
     name : Text;
     email : Text;

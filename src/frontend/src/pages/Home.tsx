@@ -1288,17 +1288,6 @@ export default function Home() {
               &copy; {new Date().getFullYear()} Lens &amp; Laughs. All rights
               reserved.
             </p>
-            <p className="text-white/30 text-sm">
-              Built with ♥ using{" "}
-              <a
-                href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-gold transition-colors"
-              >
-                caffeine.ai
-              </a>
-            </p>
           </div>
         </div>
       </footer>
