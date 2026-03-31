@@ -88,54 +88,88 @@ actor {
 
   let siteContent = Map.empty<Text, Text>();
 
+  // Stable storage to preserve service package data (including custom order) across upgrades
+  stable var _servicePackagesData : [ServicePackage] = [];
+  // Kept for upgrade compatibility with previously deployed version (was stable var there)
+  stable var servicesInitialized = false;
   let servicePackages = Map.empty<Nat, ServicePackage>();
-  var servicesInitialized = false;
 
-  // Called in both query and update contexts to ensure default packages exist.
-  // In update calls, changes are committed. In query calls, changes are temporary
-  // but still visible for the duration of the call.
+  // Restore service packages from stable storage after each upgrade
+  system func postupgrade() {
+    for (pkg in _servicePackagesData.vals()) {
+      servicePackages.add(pkg.id, pkg);
+    };
+  };
+
+  // Save service packages to stable storage before each upgrade
+  system func preupgrade() {
+    _servicePackagesData := servicePackages.values().toArray();
+  };
+
+  // Seeds all 6 default packages. Skipped if packages already exist
+  // (either restored from stable storage or previously seeded).
+  // In query calls, changes are temporary but visible for the duration of the call.
   func ensureServicesInit() {
-    if (servicesInitialized) return;
-    servicesInitialized := true;
+    if (servicePackages.size() > 0) return;
     servicePackages.add(0, {
       id = 0;
+      name = "CREATOR MINI PACK";
+      subtitle = "Quick & Fresh";
+      price = "\u{20B9}3,999";
+      description = "A compact content shoot for creators \u{2014} one nearby location, fast delivery, and reels included.";
+      features = ["30\u{2013}45 minute shoot", "1 nearby location (caf\u{E9} / street / home vibe)", "8\u{2013}10 professionally edited photos", "2 short-form reels (trendy + simple edits)", "Basic posing guidance", "Delivery within 48\u{2013}72 hours"];
+      highlighted = false;
+      displayOrder = 0;
+    });
+    servicePackages.add(1, {
+      id = 1;
       name = "THE SPARK";
       subtitle = "Quick Shoot";
       price = "\u{20B9}4,999";
       description = "A compact 1-hour shoot perfect for headshots, solo portraits, or small brand content. Clean, sharp, and straightforward.";
       features = ["1-hour session", "1 location", "10 edited photos", "Online gallery", "Digital files"];
       highlighted = false;
-      displayOrder = 0;
+      displayOrder = 1;
     });
-    servicePackages.add(1, {
-      id = 1;
+    servicePackages.add(2, {
+      id = 2;
       name = "THE FRAME";
       subtitle = "Editorial Session";
       price = "\u{20B9}25,000";
       description = "A focused editorial session for models, brands, or personal style \u{2014} sharp, intentional, and story-driven.";
       features = ["3-hour session", "1\u{2013}2 locations", "100+ edited photos", "Online gallery", "Print-ready files"];
       highlighted = false;
-      displayOrder = 1;
+      displayOrder = 2;
     });
-    servicePackages.add(2, {
-      id = 2;
+    servicePackages.add(3, {
+      id = 3;
       name = "THE VISION";
       subtitle = "Full Lookbook / Campaign";
       price = "\u{20B9}50,000";
       description = "A complete visual campaign for fashion brands, designers, or model portfolios. Built to make a statement.";
       features = ["8-hour coverage", "Up to 3 locations", "300+ edited photos", "Brand mood direction", "Online gallery", "Print-ready files"];
       highlighted = true;
-      displayOrder = 2;
+      displayOrder = 3;
     });
-    servicePackages.add(3, {
-      id = 3;
+    servicePackages.add(4, {
+      id = 4;
       name = "THE LEGACY";
       subtitle = "Premium Multi-Day";
       price = "\u{20B9}85,000";
       description = "For those who want it all \u{2014} weddings, destination shoots, full brand campaigns. Two days, unlimited vision.";
       features = ["16-hour coverage", "Multiple locations", "500+ edited photos", "Premium retouching", "Behind-the-scenes reel", "Priority booking"];
       highlighted = false;
-      displayOrder = 3;
+      displayOrder = 4;
+    });
+    servicePackages.add(5, {
+      id = 5;
+      name = "INFLUENCER PLAN";
+      subtitle = "Content Creator Plan";
+      price = "\u{20B9}12,999 \u{2013} \u{20B9}16,999 / month";
+      description = "A monthly content package built for influencers and creators \u{2014} consistent shoots, edited photos, and reels to keep your feed active.";
+      features = ["2 shoots per month", "30\u{2013}50 edited photos", "6\u{2013}10 reels (short-form videos)", "Basic content direction (poses, trends, ideas)", "Priority delivery"];
+      highlighted = false;
+      displayOrder = 5;
     });
   };
 
@@ -291,7 +325,6 @@ actor {
     highlighted : Bool
   ) : async () {
     checkAdminAccess(password);
-    // Ensure defaults are seeded in persistent state before trying to update
     ensureServicesInit();
     switch (servicePackages.get(id)) {
       case (null) { Runtime.trap("Service package not found") };

@@ -86,7 +86,7 @@ const DEFAULT_PORTFOLIO_ITEMS = [
 
 const DEFAULT_SERVICES = [
   {
-    id: 6,
+    id: 0,
     name: "CREATOR MINI PACK",
     subtitle: "Quick & Fresh",
     price: "₹3,999",
@@ -496,21 +496,7 @@ export default function Home() {
             features: pkg.features,
             highlighted: pkg.highlighted,
           }));
-          // Always include Creator Mini Pack even if backend doesn't have it yet
-          const hasCreatorMini = mapped.some(
-            (s) => s.name === "CREATOR MINI PACK",
-          );
-          const creatorMiniDefault = DEFAULT_SERVICES.find((s) => s.id === 6)!;
-          // Always include Influencer Plan even if backend doesn't have it yet
-          const hasInfluencer = mapped.some(
-            (s) => s.name === "INFLUENCER PLAN",
-          );
-          const influencerDefault = DEFAULT_SERVICES.find((s) => s.id === 5)!;
-          setServices([
-            ...(hasCreatorMini ? [] : [creatorMiniDefault]),
-            ...mapped,
-            ...(hasInfluencer ? [] : [influencerDefault]),
-          ]);
+          setServices(mapped);
         }
 
         // Portfolio items with resolved URLs
@@ -886,7 +872,7 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((svc, i) => (
               <motion.div
                 key={svc.id}
