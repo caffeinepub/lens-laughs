@@ -1212,8 +1212,8 @@ export default function Home() {
                   Working Together
                 </h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>📍 Based in Delhi, shooting across India</li>
-                  <li>📅 Availability 2025–2026 open</li>
+                  <li>📍 Based in Pune, shooting across India</li>
+                  <li>📅 Availability 2026 open</li>
                   <li>⏱ Response within 24 hours</li>
                   <li>💛 Destination shoots welcome</li>
                 </ul>
@@ -1279,7 +1279,7 @@ export default function Home() {
               <ul className="space-y-2 text-white/50 text-sm">
                 <li>{c("contact.email")}</li>
                 <li>{c("contact.phone")}</li>
-                <li>New Delhi, India</li>
+                <li>Pune, India</li>
               </ul>
             </div>
           </div>
