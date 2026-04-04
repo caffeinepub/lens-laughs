@@ -11,6 +11,9 @@ import BlobStorageMixin "blob-storage/Mixin";
 actor {
   include BlobStorageMixin();
 
+  // NOTE: ContactSubmission and BookingRequest intentionally do NOT have an `id`
+  // field — the id is the Map key, not part of the record, to stay compatible
+  // with the previously deployed canister schema.
   type ContactSubmission = {
     name : Text;
     email : Text;
@@ -80,6 +83,7 @@ actor {
     };
   };
 
+  // ── Counters and in-memory maps
   var nextContactId = 0;
   let contactSubmissions = Map.empty<Nat, ContactSubmission>();
 
@@ -91,27 +95,68 @@ actor {
 
   let siteContent = Map.empty<Text, Text>();
 
-  // Stable storage to preserve service package data (including custom order) across upgrades
+  // ── Stable storage for ALL persistent data
+  stable var _nextContactId : Nat = 0;
+  stable var _contactsData : [(Nat, ContactSubmission)] = [];
+
+  stable var _nextBookingId : Nat = 0;
+  stable var _bookingsData : [(Nat, BookingRequest)] = [];
+
+  stable var _nextPortfolioId : Nat = 0;
+  stable var _portfolioData : [PortfolioItem] = [];
+
+  stable var _siteContentData : [(Text, Text)] = [];
+
   stable var _servicePackagesData : [ServicePackage] = [];
-  // Kept for upgrade compatibility with previously deployed version (was stable var there)
+
+  // Kept for upgrade compatibility with previously deployed version
   stable var servicesInitialized = false;
+
   let servicePackages = Map.empty<Nat, ServicePackage>();
 
-  // Restore service packages from stable storage after each upgrade
+  // ── Restore all data from stable storage after upgrade
   system func postupgrade() {
+    nextContactId := _nextContactId;
+    for ((id, item) in _contactsData.vals()) {
+      contactSubmissions.add(id, item);
+    };
+
+    nextBookingId := _nextBookingId;
+    for ((id, item) in _bookingsData.vals()) {
+      bookingRequests.add(id, item);
+    };
+
+    nextPortfolioId := _nextPortfolioId;
+    for (item in _portfolioData.vals()) {
+      portfolioItems.add(item.id, item);
+    };
+
+    for ((k, v) in _siteContentData.vals()) {
+      siteContent.add(k, v);
+    };
+
     for (pkg in _servicePackagesData.vals()) {
       servicePackages.add(pkg.id, pkg);
     };
   };
 
-  // Save service packages to stable storage before each upgrade
+  // ── Save all data to stable storage before upgrade
   system func preupgrade() {
+    _nextContactId := nextContactId;
+    _contactsData := contactSubmissions.entries().toArray();
+
+    _nextBookingId := nextBookingId;
+    _bookingsData := bookingRequests.entries().toArray();
+
+    _nextPortfolioId := nextPortfolioId;
+    _portfolioData := portfolioItems.values().toArray();
+
+    _siteContentData := siteContent.entries().toArray();
+
     _servicePackagesData := servicePackages.values().toArray();
   };
 
-  // Seeds all 6 default packages. Skipped if packages already exist
-  // (either restored from stable storage or previously seeded).
-  // In query calls, changes are temporary but visible for the duration of the call.
+  // ── Service package seeding (runs once, persists immediately)
   func ensureServicesInit() {
     if (servicePackages.size() > 0) return;
     servicePackages.add(0, {
@@ -174,6 +219,8 @@ actor {
       highlighted = false;
       displayOrder = 5;
     });
+    // Persist immediately so they survive future upgrades
+    _servicePackagesData := servicePackages.values().toArray();
   };
 
   let adminPassword = "lensandlaughs2024";
@@ -199,6 +246,8 @@ actor {
       timestamp = Time.now();
     };
     contactSubmissions.add(submissionId, submission);
+    _nextContactId := nextContactId;
+    _contactsData := contactSubmissions.entries().toArray();
     submissionId;
   };
 
@@ -208,6 +257,7 @@ actor {
       case (null) { Runtime.trap("Submission not found") };
       case (?submission) {
         contactSubmissions.add(submissionId, { submission with isRead = true });
+        _contactsData := contactSubmissions.entries().toArray();
       };
     };
   };
@@ -218,6 +268,7 @@ actor {
       case (null) { Runtime.trap("Submission not found") };
       case (?submission) {
         contactSubmissions.add(submissionId, { submission with isReplied = true });
+        _contactsData := contactSubmissions.entries().toArray();
       };
     };
   };
@@ -237,6 +288,8 @@ actor {
       timestamp = Time.now(); status = "pending";
     };
     bookingRequests.add(bookingId, request);
+    _nextBookingId := nextBookingId;
+    _bookingsData := bookingRequests.entries().toArray();
     bookingId;
   };
 
@@ -246,6 +299,7 @@ actor {
       case (null) { Runtime.trap("Booking request not found") };
       case (?request) {
         bookingRequests.add(bookingId, { request with status = newStatus });
+        _bookingsData := bookingRequests.entries().toArray();
       };
     };
   };
@@ -266,13 +320,17 @@ actor {
     let id = nextPortfolioId;
     nextPortfolioId += 1;
     let count = portfolioItems.size();
-    portfolioItems.add(id, { id; blobKey; caption; displayOrder = count });
+    let item : PortfolioItem = { id; blobKey; caption; displayOrder = count };
+    portfolioItems.add(id, item);
+    _nextPortfolioId := nextPortfolioId;
+    _portfolioData := portfolioItems.values().toArray();
     id;
   };
 
   public shared ({ caller }) func deletePortfolioItem(password : Text, id : Nat) : async () {
     checkAdminAccess(password);
     ignore portfolioItems.remove(id);
+    _portfolioData := portfolioItems.values().toArray();
   };
 
   public shared ({ caller }) func updatePortfolioCaption(password : Text, id : Nat, caption : Text) : async () {
@@ -281,6 +339,7 @@ actor {
       case (null) { Runtime.trap("Portfolio item not found") };
       case (?item) {
         portfolioItems.add(id, { item with caption });
+        _portfolioData := portfolioItems.values().toArray();
       };
     };
   };
@@ -295,6 +354,7 @@ actor {
   public shared ({ caller }) func setSiteContent(password : Text, key : Text, value : Text) : async () {
     checkAdminAccess(password);
     siteContent.add(key, value);
+    _siteContentData := siteContent.entries().toArray();
   };
 
   public shared ({ caller }) func setSiteContentBatch(password : Text, entries : [(Text, Text)]) : async () {
@@ -302,16 +362,16 @@ actor {
     for ((key, value) in entries.vals()) {
       siteContent.add(key, value);
     };
+    _siteContentData := siteContent.entries().toArray();
   };
 
   // ── Services
 
-  public query func getServicePackages() : async [ServicePackage] {
+  public shared ({ caller }) func getServicePackages() : async [ServicePackage] {
     ensureServicesInit();
     servicePackages.values().toArray().sort();
   };
 
-  // Seed default packages into persistent state. Must be called once as an update.
   public shared ({ caller }) func initializeServices(password : Text) : async () {
     checkAdminAccess(password);
     ensureServicesInit();
@@ -333,6 +393,7 @@ actor {
       case (null) { Runtime.trap("Service package not found") };
       case (?pkg) {
         servicePackages.add(id, { pkg with name; subtitle; price; description; features; highlighted });
+        _servicePackagesData := servicePackages.values().toArray();
       };
     };
   };
@@ -353,5 +414,6 @@ actor {
         };
       };
     };
+    _servicePackagesData := servicePackages.values().toArray();
   };
 };

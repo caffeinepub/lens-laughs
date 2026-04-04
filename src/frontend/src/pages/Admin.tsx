@@ -767,7 +767,8 @@ function ServicesTab() {
 // ── Main Admin
 
 export default function Admin() {
-  const { actor } = useActor();
+  const { actor: _actor } = useActor();
+  const actor = _actor as FullBackendInterface | null;
   const [contacts, setContacts] = useState<ContactSubmission[]>([]);
   const [bookings, setBookings] = useState<BookingRequest[]>([]);
   const [dataLoading, setDataLoading] = useState(false);
