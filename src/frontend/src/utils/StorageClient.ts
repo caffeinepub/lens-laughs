@@ -1,5 +1,10 @@
-import { type HttpAgent, isV3ResponseBody } from "@icp-sdk/core/agent";
+import {
+  type HttpAgent,
+  isV3ResponseBody,
+  pollForResponse,
+} from "@icp-sdk/core/agent";
 import { IDL } from "@icp-sdk/core/candid";
+import { Principal } from "@icp-sdk/core/principal";
 
 type Headers = Record<string, string>;
 
@@ -488,58 +493,26 @@ export class StorageClient {
       arg: args,
     });
 
-    const body = result.response.body;
+    const responseBody = result.response.body;
 
-    // Primary path: v3 response with certificate field
-    if (isV3ResponseBody(body)) {
-      if (body.certificate && body.certificate.length > 0) {
-        return body.certificate;
-      }
+    // Fast path: v3 response includes the certificate directly in the response body
+    if (isV3ResponseBody(responseBody)) {
+      return responseBody.certificate;
     }
 
-    // Fallback: extract reply from the raw response body
-    // The IC node encodes the certified response in different formats
-    const rawBody = body as any;
+    // Slow path: 202 Accepted or null body — poll until the canister replies,
+    // then fetch the certificate via readState.
+    const canisterId = Principal.fromText(this.backendCanisterId);
+    await pollForResponse(this.agent, canisterId, result.requestId);
 
-    // Try reply bytes directly (v3 body reply field via raw access)
-    if (rawBody?.reply) {
-      const replyBytes =
-        rawBody.reply instanceof Uint8Array
-          ? rawBody.reply
-          : new Uint8Array(
-              Object.values(rawBody.reply as Record<string, number>),
-            );
-      if (replyBytes.length > 0) return replyBytes;
-    }
-
-    // Try reply.arg (standard IC response)
-    if (rawBody?.reply?.arg) {
-      const argBytes =
-        rawBody.reply.arg instanceof Uint8Array
-          ? rawBody.reply.arg
-          : new Uint8Array(
-              Object.values(rawBody.reply.arg as Record<string, number>),
-            );
-      if (argBytes.length > 0) return argBytes;
-    }
-
-    // Try certificate at top-level
-    if (rawBody?.certificate) {
-      const certBytes =
-        rawBody.certificate instanceof Uint8Array
-          ? rawBody.certificate
-          : new Uint8Array(
-              Object.values(rawBody.certificate as Record<string, number>),
-            );
-      if (certBytes.length > 0) return certBytes;
-    }
-
-    // Last resort: encode the hash itself as the certificate token
-    // The Caffeine storage gateway will validate via canister query
-    console.warn(
-      "Could not extract certificate from IC response, using hash-based token",
-    );
-    return new TextEncoder().encode(hash);
+    // After polling confirms the call was replied, do a readState to get
+    // the raw certificate bytes that the storage gateway needs.
+    const encoder = new TextEncoder();
+    const path = [encoder.encode("request_status"), result.requestId];
+    const state = await this.agent.readState(this.backendCanisterId, {
+      paths: [path],
+    });
+    return state.certificate;
   }
 
   public async putFile(

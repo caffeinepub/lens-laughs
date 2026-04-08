@@ -1,31 +1,20 @@
-# Lens & Laughs - Portfolio Manager Page
+# Lens & Laughs
 
 ## Current State
-The app has a Home page and an Admin page at /admin with 5 tabs including a Portfolio tab. The backend already supports portfolio CRUD (getPortfolioItems, addPortfolioItem, deletePortfolioItem, updatePortfolioCaption). The blob-storage component is already installed.
+Photo upload fails with "Expected v3 response body" when the IC returns a 202 Accepted instead of a v3 synchronous response.
 
 ## Requested Changes (Diff)
 
 ### Add
-- A new dedicated page at `/portfolio-manager` for managing portfolio photos
-- Drag-and-drop upload zone using the blob-storage StorageClient for uploading photos
-- Visual masonry/grid of all current portfolio photos loaded from the backend
-- Remove button on each photo in the grid
-- Optional caption editing per photo
-- No login/password required (open access, consistent with /admin)
-- Route registered in App.tsx
+- Slow-path fallback in getCertificate using pollForResponse + readState.
 
 ### Modify
-- App.tsx: add portfolioManagerRoute at /portfolio-manager
+- StorageClient.ts getCertificate: handle 202/null responses via polling.
 
 ### Remove
-- Nothing
+- Hard throw on non-v3 response body.
 
 ## Implementation Plan
-1. Create src/frontend/src/pages/PortfolioManager.tsx
-   - Drag-and-drop zone (supports multiple files, shows preview on drop)
-   - On drop/select: upload each file via StorageClient, then call addPortfolioItem with blobKey and filename as caption
-   - Use admin password "lensandlaughs2024" for write operations
-   - Grid of current portfolio items: load via getPortfolioItems, display using blob-storage URLs
-   - Each photo card has a trash/remove button that calls deletePortfolioItem
-   - Toast feedback for upload success/error and delete
-2. Register /portfolio-manager route in App.tsx
+1. Import pollForResponse and Principal.
+2. Fast path: v3 response body (unchanged).
+3. Slow path: pollForResponse to wait, then readState for raw cert bytes.
